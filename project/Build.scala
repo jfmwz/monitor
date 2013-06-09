@@ -26,17 +26,18 @@ object MachineMonitorCpuSettings {
     name := "machine-monitor-cpu-akka-shared",
     libraryDependencies ++= Seq(
       "com.typesafe.akka" % "akka-actor" % MachineMonitorCpuVersions.akkaVersion,
-      "org.scalatest" % "scalatest_2.9.1" % MachineMonitorCpuVersions.scalaTestVersion % "test",
+      "org.scalatest" % "scalatest_2.9.2" % MachineMonitorCpuVersions.scalaTestVersion % "test",
+      "org.specs2"    % "specs2_2.9.1"    % "1.5" % "test"   withSources(),
       "junit" % "junit" % MachineMonitorCpuVersions.junitVersion % "test"))
 
   lazy val serverSettings: Seq[Setting[_]] = commonSettings ++ AkkaKernelPlugin.distSettings ++ Seq(
     name := "machine-monitor-cpu-akka-server",
-    libraryDependencies ++= Seq(      
+    libraryDependencies ++= Seq(
       "com.typesafe.akka" % "akka-remote" % MachineMonitorCpuVersions.akkaVersion,
       "com.typesafe.akka" % "akka-kernel" % MachineMonitorCpuVersions.akkaVersion),
-      dist <<= dist.dependsOn(Keys.`package` in (MachineMonitorCpuBuild.shared, Compile)))
+    dist <<= dist.dependsOn(Keys.`package` in(MachineMonitorCpuBuild.shared, Compile)))
 
-  lazy val masterSettings: Seq[Setting[_]] = commonSettings ++ Seq(
+  lazy val masterSettings: Seq[Setting[_]] = commonSettings ++ sharedSettings ++ Seq(
     name := "machine-monitor-cpu-akka-master",
     libraryDependencies ++= Seq(
       "com.typesafe.akka" % "akka-remote" % MachineMonitorCpuVersions.akkaVersion))
@@ -46,11 +47,11 @@ object MachineMonitorCpuSettings {
 object MachineMonitorCpuBuild extends Build {
   lazy val root = Project(id = "machine-monitor-cpu", base = file(".")) aggregate(shared, server, master)
 
-  lazy val shared = Project(id = "machine-monitor-cpu-akka-shared", base = file("shared")) settings(MachineMonitorCpuSettings.sharedSettings: _*)
+  lazy val shared = Project(id = "machine-monitor-cpu-akka-shared", base = file("shared")) settings (MachineMonitorCpuSettings.sharedSettings: _*)
 
-  lazy val server = Project(id = "machine-monitor-cpu-akka-server", base = file("server")) settings(MachineMonitorCpuSettings.serverSettings: _*) dependsOn(shared)
+  lazy val server = Project(id = "machine-monitor-cpu-akka-server", base = file("server")) settings (MachineMonitorCpuSettings.serverSettings: _*) dependsOn (shared)
 
-  lazy val master = Project(id = "machine-monitor-cpu-akka-master", base = file("master")) settings(MachineMonitorCpuSettings.masterSettings: _*) dependsOn(shared)
+  lazy val master = Project(id = "machine-monitor-cpu-akka-master", base = file("master")) settings (MachineMonitorCpuSettings.masterSettings: _*) dependsOn (shared)
 
-  
+
 }
